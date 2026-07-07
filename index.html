@@ -2,29 +2,35 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>WB Style Label</title>
+    <title>WB Sticker Generator</title>
     <style>
-        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        body { margin: 0; padding: 20px; font-family: 'Arial Black', Arial, sans-serif; }
+        .no-print { margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
         
-        /* Дизайн стикера */
+        /* Стили стикера WB */
         .sticker { 
-            width: 240px; height: 300px; border: 1px solid #000;
+            width: 240px; height: 320px; border: 2px solid #000;
             display: flex; flex-direction: column; align-items: center;
-            justify-content: space-between; padding: 10px; box-sizing: border-box;
+            justify-content: space-between; padding: 5px; box-sizing: border-box;
+            background: white; page-break-inside: avoid;
         }
-        .wb-logo { font-size: 40px; font-weight: 900; color: #ff007f; margin: 5px 0; }
-        .qr-main { width: 160px; height: 160px; }
-        .sku-text { font-size: 28px; font-weight: bold; margin: 5px 0; }
-        .side-bars { display: flex; justify-content: space-between; width: 100%; padding: 0 10px; }
-        .bar { width: 10px; height: 180px; background: black; }
+        .wb-header { font-size: 48px; font-weight: 900; color: #ff007f; margin: 0; }
+        .qr-area { display: flex; align-items: center; gap: 5px; }
+        .side-bar { width: 12px; height: 180px; background: black; }
+        .qr-img { width: 150px; height: 150px; }
+        .sku-footer { font-size: 32px; font-weight: 900; margin-top: 5px; }
         
-        @media print { .no-print { display: none !important; } }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <button class="no-print" onclick="window.print()">Печать всех стикеров</button>
+    <button class="no-print" onclick="window.print()">Печать стикеров</button>
     <div id="orders-container" class="grid"></div>
 
     <script>
@@ -33,19 +39,19 @@
             const orders = await response.json();
             const container = document.getElementById('orders-container');
 
-            orders.forEach(order => {
-                // Берем последние 7 цифр из SKU для примера
-                const skuCode = order.sku.replace('WB-', '');
+            orders.reverse().forEach(order => {
+                // Извлекаем только числовую часть артикула
+                const skuNumber = order.sku.replace('WB-', '');
                 
                 container.innerHTML += `
                     <div class="sticker">
-                        <div class="wb-logo">WB</div>
-                        <div class="side-bars">
-                            <div class="bar"></div>
-                            <img class="qr-main" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${order.sku}">
-                            <div class="bar"></div>
+                        <div class="wb-header">WB</div>
+                        <div class="qr-area">
+                            <div class="side-bar"></div>
+                            <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${order.sku}">
+                            <div class="side-bar"></div>
                         </div>
-                        <div class="sku-text">${skuCode}</div>
+                        <div class="sku-footer">${skuNumber}</div>
                     </div>
                 `;
             });
