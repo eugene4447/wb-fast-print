@@ -11,13 +11,31 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Add Mock Order
+      - name: Add Rich Mock Order
         run: |
-          # Берем текущий список и добавляем в него новый заказ
-          # Используем временный файл для обработки
-          echo "$(jq '. + [{"id": '$(date +%s)', "article": "Товар от ИИ ('$(date +%H:%M)')", "status": "Новый"}]' orders.json)" > orders.json
+          # Списки для генерации
+          ARTICLES=("Футболка Oversize" "Худи с принтом" "Джоггеры" "Кепка Logo" "Носки набор")
+          BUYERS=("Александр П." "Мария С." "Дмитрий К." "Елена В." "Игорь М.")
+          
+          # Рандомный выбор
+          ARTICLE=${ARTICLES[$RANDOM % ${#ARTICLES[@]}]}
+          BUYER=${BUYERS[$RANDOM % ${#BUYERS[@]}]}
+          PRICE=$((500 + RANDOM % 4500))
+          SKU="WB-$(date +%s)"
+          
+          # Добавление в JSON через jq
+          jq ". + [{
+            \"id\": $(date +%s),
+            \"article\": \"$ARTICLE\",
+            \"sku\": \"$SKU\",
+            \"price\": \"$PRICE ₽\",
+            \"buyer\": \"$BUYER\",
+            \"status\": \"Новый\",
+            \"date\": \"$(date +'%d.%m %H:%M')\"
+          }]" orders.json > temp.json && mv temp.json orders.json
+          
           git config user.name "AI Agent"
           git config user.email "ai@agent.com"
           git add orders.json
-          git commit -m "Update orders.json"
+          git commit -m "Generated pro order: $SKU"
           git push
