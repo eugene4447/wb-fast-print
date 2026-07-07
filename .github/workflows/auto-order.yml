@@ -1,41 +1,29 @@
-name: Mock WB Agent
+name: Mock WB API Agent
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
+    - cron: '*/5 * * * *' # Запуск каждые 5 минут
+  workflow_dispatch:      # Кнопка ручного запуска
 
 jobs:
-  update-orders:
+  run-mock-api:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Add Rich Mock Order
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Run Mock Generator
+        run: python generate_mock.py
+        
+      - name: Commit and Push
         run: |
-          # Списки для генерации
-          ARTICLES=("Футболка Oversize" "Худи с принтом" "Джоггеры" "Кепка Logo" "Носки набор")
-          BUYERS=("Александр П." "Мария С." "Дмитрий К." "Елена В." "Игорь М.")
-          
-          # Рандомный выбор
-          ARTICLE=${ARTICLES[$RANDOM % ${#ARTICLES[@]}]}
-          BUYER=${BUYERS[$RANDOM % ${#BUYERS[@]}]}
-          PRICE=$((500 + RANDOM % 4500))
-          SKU="WB-$(date +%s)"
-          
-          # Добавление в JSON через jq
-          jq ". + [{
-            \"id\": $(date +%s),
-            \"article\": \"$ARTICLE\",
-            \"sku\": \"$SKU\",
-            \"price\": \"$PRICE ₽\",
-            \"buyer\": \"$BUYER\",
-            \"status\": \"Новый\",
-            \"date\": \"$(date +'%d.%m %H:%M')\"
-          }]" orders.json > temp.json && mv temp.json orders.json
-          
-          git config user.name "AI Agent"
-          git config user.email "ai@agent.com"
+          git config user.name "Mock API Bot"
+          git config user.email "bot@mock.api"
           git add orders.json
-          git commit -m "Generated pro order: $SKU"
+          git commit -m "Mock API: New orders generated"
           git push
