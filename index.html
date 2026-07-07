@@ -5,26 +5,29 @@
     <title>Заказы Wildberries</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 40px; background-color: #f4f4f9; }
-        h1 { color: #333; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card { 
             background: white; border: 1px solid #ddd; padding: 20px; 
-            margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; border-radius: 8px;
         }
-        button { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        button { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        
+        /* Этот стиль скрывает кнопку при печати */
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 0; }
+        }
     </style>
 </head>
 <body>
-    <h1>Список заказов WB</h1>
+    <div class="header">
+        <h1>Список заказов WB</h1>
+        <button class="no-print" onclick="window.print()">Печать всех заказов</button>
+    </div>
+    
     <div id="orders">
-        <div class="card">
-            <div><strong>Артикул:</strong> Спортивные брюки <br> <small>Статус: Новый</small></div>
-            <button onclick="window.print()">Печать</button>
-        </div>
-        <div class="card">
-            <div><strong>Артикул:</strong> Белая футболка <br> <small>Статус: Новый</small></div>
-            <button onclick="window.print()">Печать</button>
-        </div>
+        <div class="card"><strong>Артикул:</strong> Спортивные брюки <br> <small>Статус: Новый</small></div>
+        <div class="card"><strong>Артикул:</strong> Белая футболка <br> <small>Статус: Новый</small></div>
     </div>
 </body>
 </html>
