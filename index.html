@@ -2,72 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>WB Fast Print Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>WB Style Label</title>
     <style>
-        :root { --primary: #6366f1; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 40px; }
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 30px; }
-        
-        /* Стили карточки-стикера */
-        .order-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
-        .card { 
-            background: white; border: 1px solid #000; padding: 15px; 
-            display: flex; flex-direction: column; align-items: center; 
-            border-radius: 8px; page-break-after: always;
+        /* Дизайн стикера */
+        .sticker { 
+            width: 240px; height: 300px; border: 1px solid #000;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-between; padding: 10px; box-sizing: border-box;
         }
-        .info { text-align: center; width: 100%; }
-        .info h3 { margin: 10px 0; font-size: 16px; }
-        .details { font-size: 14px; margin-bottom: 10px; font-weight: bold; }
-        .qr-code img { width: 150px; height: 150px; margin: 10px 0; }
+        .wb-logo { font-size: 40px; font-weight: 900; color: #ff007f; margin: 5px 0; }
+        .qr-main { width: 160px; height: 160px; }
+        .sku-text { font-size: 28px; font-weight: bold; margin: 5px 0; }
+        .side-bars { display: flex; justify-content: space-between; width: 100%; padding: 0 10px; }
+        .bar { width: 10px; height: 180px; background: black; }
         
-        .btn-print { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; padding: 0; }
-            .card { border: none; box-shadow: none; }
-        }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
-    <div class="header no-print">
-        <h1>Сборочные задания</h1>
-        <button class="btn-print" onclick="window.print()">Печать всех стикеров</button>
-    </div>
-
-    <div id="orders-container" class="order-grid"></div>
+    <button class="no-print" onclick="window.print()">Печать всех стикеров</button>
+    <div id="orders-container" class="grid"></div>
 
     <script>
         async function loadOrders() {
-            try {
-                const response = await fetch('orders.json');
-                const orders = await response.json();
-                const container = document.getElementById('orders-container');
-                container.innerHTML = '';
+            const response = await fetch('orders.json');
+            const orders = await response.json();
+            const container = document.getElementById('orders-container');
 
-                orders.reverse().forEach(order => {
-                    container.innerHTML += `
-                        <div class="card">
-                            <div class="info">
-                                <h3><i class="fas fa-box"></i> ${order.article}</h3>
-                                <div class="details">SKU: ${order.sku}</div>
-                                <div class="qr-code">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${order.sku}" alt="QR">
-                                </div>
-                                <div style="font-size: 12px;">${order.date} | ${order.price}</div>
-                            </div>
-                            <div class="no-print" style="margin-top: 15px;">
-                                <button class="btn-print" onclick="window.print()">Печать стикера</button>
-                            </div>
+            orders.forEach(order => {
+                // Берем последние 7 цифр из SKU для примера
+                const skuCode = order.sku.replace('WB-', '');
+                
+                container.innerHTML += `
+                    <div class="sticker">
+                        <div class="wb-logo">WB</div>
+                        <div class="side-bars">
+                            <div class="bar"></div>
+                            <img class="qr-main" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${order.sku}">
+                            <div class="bar"></div>
                         </div>
-                    `;
-                });
-            } catch (e) {
-                document.getElementById('orders-container').innerText = "Заказов пока нет.";
-            }
+                        <div class="sku-text">${skuCode}</div>
+                    </div>
+                `;
+            });
         }
         loadOrders();
     </script>
