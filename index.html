@@ -2,40 +2,106 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Заказы Wildberries</title>
+    <title>WB Fast Print Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background-color: #f4f4f9; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background: white; border: 1px solid #ddd; padding: 20px; margin-bottom: 10px; border-radius: 8px; }
-        button { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; }
-        @media print { .no-print { display: none; } body { background: white; padding: 0; } }
+        :root { --primary: #6366f1; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 30px; }
+        .btn-print { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-print:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* Дизайн карточек на экране */
+        .order-grid { display: grid; gap: 20px; max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .info h3 { margin: 0 0 5px; font-size: 18px; color: var(--primary); }
+        .details { display: flex; gap: 20px; color: #64748b; font-size: 14px; }
+        .price-tag { font-size: 20px; font-weight: 700; color: #10b981; }
+
+        /* Стили для печати (Накладная) */
+        #print-table { display: none; width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #print-table th, #print-table td { border: 1px solid #000; padding: 10px; text-align: left; font-size: 12px; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+            .order-grid { display: none; }
+            #print-table { display: table; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 20px; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Список заказов WB</h1>
-        <button class="no-print" onclick="window.print()">Печать всех заказов</button>
+
+    <div class="header no-print">
+        <div>
+            <h1>Сборочные задания</h1>
+            <p style="color: #64748b;">Управление заказами FBS</p>
+        </div>
+        <button class="btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i> Печать накладной
+        </button>
     </div>
-    <div id="orders">Загрузка данных...</div>
+
+    <div class="print-header" style="display: none;">
+        <h2>АКТ ПРИЕМА-ПЕРЕДАЧИ / НАКЛАДНАЯ</h2>
+        <p>Дата формирования: <span id="current-date"></span></p>
+    </div>
+
+    <div id="orders-container" class="order-grid"></div>
+
+    <table id="print-table">
+        <thead>
+            <tr>
+                <th>№</th>
+                <th>Дата</th>
+                <th>Артикул / SKU</th>
+                <th>Товар</th>
+                <th>Покупатель</th>
+                <th>Цена</th>
+            </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
 
     <script>
-        // Функция загрузки заказов из JSON
         async function loadOrders() {
             try {
                 const response = await fetch('orders.json');
                 const orders = await response.json();
-                const container = document.getElementById('orders');
-                container.innerHTML = '';
-                orders.forEach(order => {
+                
+                const container = document.getElementById('orders-container');
+                const tableBody = document.getElementById('table-body');
+                document.getElementById('current-date').innerText = new Date().toLocaleString();
+
+                orders.reverse().forEach((order, index) => {
+                    // Рендер карточки
                     container.innerHTML += `
                         <div class="card">
-                            <strong>Артикул:</strong> ${order.article} <br> 
-                            <small>Статус: ${order.status}</small>
+                            <div class="info">
+                                <h3><i class="fas fa-box"></i> ${order.article}</h3>
+                                <div class="details">
+                                    <span><i class="fas fa-barcode"></i> ${order.sku}</span>
+                                    <span><i class="fas fa-user"></i> ${order.buyer}</span>
+                                    <span><i class="fas fa-clock"></i> ${order.date}</span>
+                                </div>
+                            </div>
+                            <div class="price-tag">${order.price}</div>
                         </div>`;
+
+                    // Рендер строки таблицы
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${order.date}</td>
+                            <td>${order.sku}</td>
+                            <td>${order.article}</td>
+                            <td>${order.buyer}</td>
+                            <td>${order.price}</td>
+                        </tr>`;
                 });
-            } catch (e) {
-                document.getElementById('orders').innerText = "Ошибка загрузки заказов.";
-            }
+            } catch (e) { console.error("Ошибка:", e); }
         }
         loadOrders();
     </script>
