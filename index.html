@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <title>Заказы Wildberries</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background-color: #f4f4f9; }
+        h1 { color: #333; }
+        .card { 
+            background: white; border: 1px solid #ddd; padding: 20px; 
+            margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        button { background: #6366f1; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>Заказы Wildberries (FBS)</h1>
+    <h1>Список заказов WB</h1>
     <div id="orders">
-        <div class="card">Артикул: Спортивные брюки | Статус: Новый</div>
-        <div class="card">Артикул: Белая футболка | Статус: Новый</div>
+        <div class="card">
+            <div><strong>Артикул:</strong> Спортивные брюки <br> <small>Статус: Новый</small></div>
+            <button onclick="window.print()">Печать</button>
+        </div>
+        <div class="card">
+            <div><strong>Артикул:</strong> Белая футболка <br> <small>Статус: Новый</small></div>
+            <button onclick="window.print()">Печать</button>
+        </div>
     </div>
 </body>
 </html>
